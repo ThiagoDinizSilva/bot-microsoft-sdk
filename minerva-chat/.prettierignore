@@ -1,0 +1,12 @@
+node_modules
+build
+dist
+coverage
+*.md
+*.svg
+*.eot
+*.ttf
+*.woff
+*.woff2
+*.yaml
+*.yml

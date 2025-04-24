@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  minerva-bot:
+    build:
+      context: ./minerva-bot
+      dockerfile: Dockerfile
+    container_name: minerva-bot
+    ports:
+      - "3978:3978"
+    depends_on:
+      - redis
+      - mysql
+    env_file:
+      - ./.development.env
+    volumes:
+      - ./minerva-bot:/app
+    command: npm start
+
+  minerva-content-store:
+    build:
+      context: ./minerva-content-store
+      dockerfile: Dockerfile
+    container_name: minerva-content-store
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - mysql
+    env_file:
+      - ./.development.env
+    volumes:
+      - ./minerva-content-store:/app
+    command: npm run start
+
+  chat:
+    build:
+      context: ./minerva-chat
+      dockerfile: Dockerfile
+    container_name: minerva-chat
+    ports:
+      - "3001:3001"
+    depends_on:
+      - minerva-bot
+    env_file:
+      - ./.development.env
+    volumes:
+      - ./minerva-chat:/app
+    command: npm run dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
